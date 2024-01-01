@@ -10,6 +10,7 @@ from tests.models import Product, Cart
 def product():
     return Product("book", 100, "This is a book", 1000)
 
+@pytest.fixture
 def cart():
     return Cart()
 
@@ -45,3 +46,31 @@ class TestCart:
         На некоторые методы у вас может быть несколько тестов.
         Например, негативные тесты, ожидающие ошибку (используйте pytest.raises, чтобы проверить это)
     """
+    def test_add_product(self, product, cart):
+        cart.add_product(product, 20)
+        assert cart.products[product] == 20
+
+    def test_remove_product(self, product, cart):
+        cart.add_product(product, 20)
+        cart.remove_product(product,5)
+        assert cart.products[product]==15
+
+    def test_clear(self, cart, product):
+        cart.add_product(product, 10)
+        cart.clear()
+        assert cart.products == {}
+
+    def test_get_total_price(self, cart, product):
+        cart.add_product(product, 15)
+        assert cart.get_total_price(product) == 1500
+
+    def test_buy(self, cart, product):
+        cart.add_product(product, 20)
+        cart.buy(product)
+        assert product.quantity == 980
+
+    def test_error(self, cart, product):
+        cart.add_product(product, 20000)
+        with pytest.raises(ValueError):
+            cart.buy(product)
+
