@@ -1,74 +1,103 @@
-"""
-Протестируйте классы из модуля homework/models.py
-"""
-import pytest
 
-from tests.models import Product, Cart
+from dataclasses import dataclass
+from typing import Dict
 
-
-@pytest.fixture
-def product():
-    return Product("book", 100, "This is a book", 1000)
-
-
-@pytest.fixture
-def cart():
-    return Cart()
-
-
-class TestProducts:
+class Product:
     """
-    Тестовый класс - это способ группировки ваших тестов по какой-то тематике
-    Например, текущий класс группирует тесты на класс Product
+    Класс продукта
     """
+    name: str
+    price: float
+    description: str
+    quantity: int
 
-    def test_product_check_quantity(self, product):
-        # TODO напишите проверки на метод check_quantity
-        assert product.check_quantity(quantity=100) is True
+    def __init__(self, name, price, description, quantity):
+        self.name = name
+        self.price = price
+        self.description = description
+        self.quantity = quantity
 
-    def test_product_buy(self, product):
-        # TODO напишите проверки на метод buy
-        assert product.buy(quantity=10) is True
+    def check_quantity(self, quantity) -> bool:
+        """
+        TODO Верните True если количество продукта больше или равно запрашиваемому
+            и False в обратном случае
+        """
+        if self.quantity >= quantity:
+            return True
+        else:
+            return False
 
-    def test_product_buy_more_than_available(self, product):
-        # TODO напишите проверки на метод buy,
-        #  которые ожидают ошибку ValueError при попытке купить больше, чем есть в наличии
-        assert 'Вы можете купить только' in product.buy(quantity=1001)
+
+    def buy(self, quantity):
+        """
+        TODO реализуйте метод покупки
+            Проверьте количество продукта используя метод check_quantity
+            Если продуктов не хватает, то выбросите исключение ValueError
+        """
+        if self.quantity(quantity):
+            return 'Success'
+        else:
+            raise ValueError
+
+    def __hash__(self):
+        return hash(self.name + self.description)
 
 
-class TestCart:
+class Cart:
     """
-    TODO Напишите тесты на методы класса Cart
-        На каждый метод у вас должен получиться отдельный тест
-        На некоторые методы у вас может быть несколько тестов.
-        Например, негативные тесты, ожидающие ошибку (используйте pytest.raises, чтобы проверить это)
+    Класс корзины. В нем хранятся продукты, которые пользователь хочет купить.
+    TODO реализуйте все методы класса
     """
+    products: Dict[Product, int]
 
-    def test_add_product(self, cart, product):
-        print(product)
-        test = cart.add_product(product, buy_count=20)
-        assert 'Продукт добавлен в карзину' in test
+    # Словарь продуктов и их количество в корзине
+    products: dict[Product, int]
 
-    def test_remove_product(self, cart, product):
-        cart.add_product(product, buy_count=20)
-        remove = cart.remove_product(product, 2)
-        assert remove == 18
+    def __init__(self):
+        # По-умолчанию корзина пустая
+        self.products = {}
 
-    def test_get_total_price(self, cart, product):
-        cart.add_product(product, buy_count=20)
-        price = cart.get_total_price(product)
-        assert price == 2000
+    def add_product(self, product: Product, buy_count=1):
+        """
+        Метод добавления продукта в корзину.
+        Если продукт уже есть в корзине, то увеличиваем количество
+        """
+        if product in self.products:
+            self.products[product] += buy_count
+        else:
+            self.products[product] = buy_count
+        return self.products
 
-    def test_buy(self, cart, product):
-        cart.add_product(product, buy_count=20)
-        buy = cart.buy(product)
-        assert f'Вы купили {product.name} за {cart.get_total_price(product)}' in buy
+    def remove_product(self, product: Product, remove_count=None):
+        """
+        Метод удаления продукта из корзины.
+        Если remove_count не передан, то удаляется вся позиция
+        Если remove_count больше, чем количество продуктов в позиции, то удаляется вся позиция
+        """
+        if product in self.products:
+            if remove_count is None:
+                self.products.pop(product)
+            else:
+                self.products[product] -= remove_count
+                if self.products[product] <= 0:
+                    self.products.pop(product)
+        return self.products
 
-    def test_buy_failed(self, cart, product):
-        cart.add_product(product, buy_count=20000)
-        buy = cart.buy(product)
-        assert f'Вы можете купить только {product.quantity} ед. продукта' in buy
+    def clear(self):
+        raise NotImplementedError
 
-    def test_clear(self, cart, product):
-        cart.add_product(product, 20)
-        cart.clear()
+    def get_total_price(self) -> float:
+        raise NotImplementedError
+
+    def buy(self):
+        """
+        Метод покупки.
+        Учтите, что товаров может не хватать на складе.
+        В этом случае нужно выбросить исключение ValueError
+        """
+        for product in self.products:
+            if product.check_quantity(self.products[product]):
+                product.quantity -= self.products[product]
+            else:
+                raise ValueError
+        return self.clear()

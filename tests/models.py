@@ -21,7 +21,7 @@ class Product:
         if self.quantity >= quantity:
             return True
         else:
-            return ValueError
+            return False
 
     def buy(self, quantity):
         """
@@ -30,8 +30,8 @@ class Product:
             Если продуктов не хватает, то выбросите исключение ValueError
         """
 
-        if self.quantity(quantity):
-            return 'Success'
+        if self.check_quantity(quantity):
+            self.quantity -= quantity
         else:
             raise ValueError
 
@@ -81,8 +81,10 @@ class Cart:
         self.products = {}
 
     def get_total_price(self, product: Product) -> float:
-        for key in self.products:
-            return self.products[key] * product.price
+        total_price = 0
+        for product in self.products:
+            total_price = self.products[product] * product.price
+        return total_price
 
     #
     def buy(self, product: Product):
