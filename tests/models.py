@@ -88,9 +88,22 @@ class Cart:
     def clear(self):
         self.products = {}
 
+    # def get_total_price(self) -> float:
+    #     return sum(product.price * quantity for product, quantity in self.products.items())
+    # #
     def get_total_price(self) -> float:
-        return sum(product.price * quantity for product, quantity in self.products.items())
+        total_price = 0
+        for product, quantity in self.products.items():
+            total_price+=product.price * quantity
+            return total_price
+
+            # def get_total_price(self) -> float:
+    #     total_price = 0
+    #     for product, quantity in self.products.items():
     #
+    #          total_price += product.price * quantity
+    #
+    #         return total_price
     def buy(self, product: Product):
         """
         Метод покупки.
