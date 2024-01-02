@@ -64,6 +64,7 @@ class TestCart:
         cart.add_product(product, 15)
         assert cart.get_total_price(product) == 1500
 
+
     def test_buy(self, cart, product):
         cart.add_product(product, 20)
         cart.buy(product)

@@ -1,6 +1,8 @@
 from dataclasses import dataclass
 from typing import Dict
 
+import self as self
+
 
 @dataclass
 class Product:
@@ -86,12 +88,8 @@ class Cart:
     def clear(self):
         self.products = {}
 
-    def get_total_price(self, product: Product) -> float:
-        total_price = 0
-        for product in self.products:
-            total_price = self.products[product] * product.price
-        return total_price
-
+    def get_total_price(self) -> float:
+        return sum(product.price * quantity for product, quantity in self.products.items())
     #
     def buy(self, product: Product):
         """
