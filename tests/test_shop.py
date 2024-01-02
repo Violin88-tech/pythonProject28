@@ -60,9 +60,6 @@ class TestCart:
         cart.clear()
         assert cart.products == {}
 
-    # def test_get_total_price(self, cart, product):
-    #     cart.add_product(product, 15)
-    #     assert cart.get_total_price(product) == 1500
 
     def test_get_total_price(self, cart, product):
         cart.add_product(product, 15)
